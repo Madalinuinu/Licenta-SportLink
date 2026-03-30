@@ -6,5 +6,5 @@ import java.util.List;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface LobbyRepository extends JpaRepository<Lobby, Long> {
-    List<Lobby> findByActiveTrueAndEventDateTimeAfterOrderByEventDateTimeAsc(LocalDateTime now);
+    List<Lobby> findByDateTimeAfterOrderByDateTimeAsc(LocalDateTime now);
 }

@@ -24,19 +24,19 @@ public class Lobby {
     private Long id;
 
     @Column(nullable = false)
+    private String title;
+
+    @Column(nullable = false)
     private String sport;
 
     @Column(nullable = false)
     private String location;
 
     @Column(nullable = false)
-    private LocalDateTime eventDateTime;
+    private LocalDateTime dateTime;
 
     @Column(nullable = false)
-    private Integer maxParticipants;
-
-    @Column(nullable = false)
-    private Boolean active = true;
+    private Integer maxPlayers;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "creator_id", nullable = false)
@@ -44,7 +44,7 @@ public class Lobby {
 
     @ManyToMany
     @JoinTable(
-            name = "lobby_participants",
+            name = "user_lobby",
             joinColumns = @JoinColumn(name = "lobby_id"),
             inverseJoinColumns = @JoinColumn(name = "user_id")
     )
@@ -52,6 +52,14 @@ public class Lobby {
 
     public Long getId() {
         return id;
+    }
+
+    public String getTitle() {
+        return title;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
     }
 
     public String getSport() {
@@ -70,28 +78,20 @@ public class Lobby {
         this.location = location;
     }
 
-    public LocalDateTime getEventDateTime() {
-        return eventDateTime;
+    public LocalDateTime getDateTime() {
+        return dateTime;
     }
 
-    public void setEventDateTime(LocalDateTime eventDateTime) {
-        this.eventDateTime = eventDateTime;
+    public void setDateTime(LocalDateTime dateTime) {
+        this.dateTime = dateTime;
     }
 
-    public Integer getMaxParticipants() {
-        return maxParticipants;
+    public Integer getMaxPlayers() {
+        return maxPlayers;
     }
 
-    public void setMaxParticipants(Integer maxParticipants) {
-        this.maxParticipants = maxParticipants;
-    }
-
-    public Boolean getActive() {
-        return active;
-    }
-
-    public void setActive(Boolean active) {
-        this.active = active;
+    public void setMaxPlayers(Integer maxPlayers) {
+        this.maxPlayers = maxPlayers;
     }
 
     public UserAccount getCreator() {

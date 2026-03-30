@@ -31,11 +31,11 @@ public class LobbyService {
         UserAccount creator = getUserOrThrow(request.creatorId());
 
         Lobby lobby = new Lobby();
+        lobby.setTitle(request.title().trim());
         lobby.setSport(request.sport().trim());
         lobby.setLocation(request.location().trim());
-        lobby.setEventDateTime(request.dateTime());
-        lobby.setMaxParticipants(request.maxParticipants());
-        lobby.setActive(true);
+        lobby.setDateTime(request.dateTime());
+        lobby.setMaxPlayers(request.maxPlayers());
         lobby.setCreator(creator);
         lobby.getParticipants().add(creator);
 
@@ -45,7 +45,7 @@ public class LobbyService {
 
     @Transactional(readOnly = true)
     public List<LobbyResponse> getActiveLobbies() {
-        return lobbyRepository.findByActiveTrueAndEventDateTimeAfterOrderByEventDateTimeAsc(LocalDateTime.now())
+        return lobbyRepository.findByDateTimeAfterOrderByDateTimeAsc(LocalDateTime.now())
                 .stream()
                 .map(LobbyResponse::from)
                 .toList();
@@ -63,7 +63,7 @@ public class LobbyService {
 
         boolean alreadyJoined = lobby.getParticipants().stream()
                 .anyMatch(participant -> participant.getId().equals(userId));
-        if (!alreadyJoined && lobby.getParticipants().size() >= lobby.getMaxParticipants()) {
+        if (!alreadyJoined && lobby.getParticipants().size() >= lobby.getMaxPlayers()) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Lobby is full");
         }
 
@@ -82,9 +82,6 @@ public class LobbyService {
         getUserOrThrow(userId);
 
         lobby.getParticipants().removeIf(participant -> participant.getId().equals(userId));
-        if (lobby.getParticipants().isEmpty()) {
-            lobby.setActive(false);
-        }
 
         Lobby saved = lobbyRepository.save(lobby);
         return LobbyResponse.from(saved);
@@ -93,18 +90,19 @@ public class LobbyService {
     private void validateCreateLobbyRequest(CreateLobbyRequest request) {
         if (request == null
                 || request.creatorId() == null
+                || isBlank(request.title())
                 || isBlank(request.sport())
                 || isBlank(request.location())
                 || request.dateTime() == null
-                || request.maxParticipants() == null) {
+                || request.maxPlayers() == null) {
             throw new ResponseStatusException(
                     HttpStatus.BAD_REQUEST,
-                    "creatorId, sport, location, dateTime and maxParticipants are required"
+                    "creatorId, title, sport, location, dateTime and maxPlayers are required"
             );
         }
 
-        if (request.maxParticipants() < 1) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "maxParticipants must be at least 1");
+        if (request.maxPlayers() < 1) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "maxPlayers must be at least 1");
         }
 
         if (request.dateTime().isBefore(LocalDateTime.now())) {
@@ -113,7 +111,7 @@ public class LobbyService {
     }
 
     private void ensureLobbyIsJoinable(Lobby lobby) {
-        if (!Boolean.TRUE.equals(lobby.getActive()) || lobby.getEventDateTime().isBefore(LocalDateTime.now())) {
+        if (lobby.getDateTime().isBefore(LocalDateTime.now())) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Lobby is no longer active");
         }
     }

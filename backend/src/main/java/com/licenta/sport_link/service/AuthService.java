@@ -23,14 +23,14 @@ public class AuthService {
     public AuthResponse register(RegisterRequest request) {
         validateRegisterRequest(request);
 
-        String email = request.email().trim().toLowerCase();
-        if (userAccountRepository.existsByEmail(email)) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT, "Email already in use");
+        String username = request.username().trim().toLowerCase();
+        if (userAccountRepository.existsByUsername(username)) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "Username already in use");
         }
 
         UserAccount user = new UserAccount();
         user.setName(request.name().trim());
-        user.setEmail(email);
+        user.setUsername(username);
         user.setPassword(request.password().trim());
 
         UserAccount saved = userAccountRepository.save(user);
@@ -41,7 +41,7 @@ public class AuthService {
     public AuthResponse login(AuthRequest request) {
         validateLoginRequest(request);
 
-        UserAccount user = userAccountRepository.findByEmail(request.email().trim().toLowerCase())
+        UserAccount user = userAccountRepository.findByUsername(request.username().trim().toLowerCase())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid credentials"));
 
         if (!user.getPassword().equals(request.password().trim())) {
@@ -52,21 +52,21 @@ public class AuthService {
     }
 
     private AuthResponse toAuthResponse(UserAccount user) {
-        return new AuthResponse(user.getId(), user.getName(), user.getEmail());
+        return new AuthResponse(user.getId(), user.getName(), user.getUsername());
     }
 
     private void validateRegisterRequest(RegisterRequest request) {
         if (request == null
                 || isBlank(request.name())
-                || isBlank(request.email())
+                || isBlank(request.username())
                 || isBlank(request.password())) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Name, email and password are required");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "name, username and password are required");
         }
     }
 
     private void validateLoginRequest(AuthRequest request) {
-        if (request == null || isBlank(request.email()) || isBlank(request.password())) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Email and password are required");
+        if (request == null || isBlank(request.username()) || isBlank(request.password())) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "username and password are required");
         }
     }
 

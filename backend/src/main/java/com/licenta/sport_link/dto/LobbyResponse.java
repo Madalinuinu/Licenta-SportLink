@@ -6,13 +6,13 @@ import java.util.List;
 
 public record LobbyResponse(
         Long id,
+        String title,
         String sport,
         String location,
         LocalDateTime dateTime,
-        Integer maxParticipants,
+        Integer maxPlayers,
         Integer participantCount,
         Integer availableSpots,
-        Boolean active,
         Long creatorId,
         List<Long> participantIds
 ) {
@@ -25,13 +25,13 @@ public record LobbyResponse(
         int participantCount = participantIds.size();
         return new LobbyResponse(
                 lobby.getId(),
+                lobby.getTitle(),
                 lobby.getSport(),
                 lobby.getLocation(),
-                lobby.getEventDateTime(),
-                lobby.getMaxParticipants(),
+                lobby.getDateTime(),
+                lobby.getMaxPlayers(),
                 participantCount,
-                Math.max(lobby.getMaxParticipants() - participantCount, 0),
-                lobby.getActive(),
+                Math.max(lobby.getMaxPlayers() - participantCount, 0),
                 lobby.getCreator().getId(),
                 participantIds
         );

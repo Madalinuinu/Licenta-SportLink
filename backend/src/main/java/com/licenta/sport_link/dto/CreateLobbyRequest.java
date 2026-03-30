@@ -4,9 +4,10 @@ import java.time.LocalDateTime;
 
 public record CreateLobbyRequest(
         Long creatorId,
+        String title,
         String sport,
         String location,
         LocalDateTime dateTime,
-        Integer maxParticipants
+        Integer maxPlayers
 ) {
 }
