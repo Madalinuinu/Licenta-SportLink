@@ -11,8 +11,10 @@ import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import jakarta.persistence.UniqueConstraint;
 import java.time.LocalDateTime;
 import java.util.LinkedHashSet;
+import java.util.Objects;
 import java.util.Set;
 
 @Entity
@@ -23,13 +25,13 @@ public class Lobby {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false)
+    @Column(nullable = false, length = 100)
     private String title;
 
-    @Column(nullable = false)
+    @Column(nullable = false, length = 50)
     private String sport;
 
-    @Column(nullable = false)
+    @Column(nullable = false, length = 100)
     private String location;
 
     @Column(nullable = false)
@@ -46,7 +48,8 @@ public class Lobby {
     @JoinTable(
             name = "user_lobby",
             joinColumns = @JoinColumn(name = "lobby_id"),
-            inverseJoinColumns = @JoinColumn(name = "user_id")
+            inverseJoinColumns = @JoinColumn(name = "user_id"),
+            uniqueConstraints = @UniqueConstraint(columnNames = {"lobby_id", "user_id"})
     )
     private Set<UserAccount> participants = new LinkedHashSet<>();
 
@@ -104,5 +107,21 @@ public class Lobby {
 
     public Set<UserAccount> getParticipants() {
         return participants;
+    }
+
+    @Override
+    public boolean equals(Object object) {
+        if (this == object) {
+            return true;
+        }
+        if (!(object instanceof Lobby other)) {
+            return false;
+        }
+        return id != null && id.equals(other.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id);
     }
 }

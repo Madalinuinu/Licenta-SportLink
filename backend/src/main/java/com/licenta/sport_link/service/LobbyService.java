@@ -63,7 +63,11 @@ public class LobbyService {
 
         boolean alreadyJoined = lobby.getParticipants().stream()
                 .anyMatch(participant -> participant.getId().equals(userId));
-        if (!alreadyJoined && lobby.getParticipants().size() >= lobby.getMaxPlayers()) {
+        if (alreadyJoined) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "User is already in this lobby");
+        }
+
+        if (lobby.getParticipants().size() >= lobby.getMaxPlayers()) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Lobby is full");
         }
 
@@ -81,7 +85,10 @@ public class LobbyService {
         Lobby lobby = getLobbyOrThrow(lobbyId);
         getUserOrThrow(userId);
 
-        lobby.getParticipants().removeIf(participant -> participant.getId().equals(userId));
+        boolean removed = lobby.getParticipants().removeIf(participant -> participant.getId().equals(userId));
+        if (!removed) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "User is not in this lobby");
+        }
 
         Lobby saved = lobbyRepository.save(lobby);
         return LobbyResponse.from(saved);

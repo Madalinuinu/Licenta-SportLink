@@ -15,6 +15,7 @@ public class HomeController {
                 "register", "POST /api/auth/register",
                 "login", "POST /api/auth/login",
                 "createLobby", "POST /api/lobbies",
+                "createLobbyAlias", "POST /api/lobbies/create",
                 "activeLobbies", "GET /api/lobbies/active"
         );
     }
